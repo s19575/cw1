@@ -7,33 +7,34 @@ namespace Cw1
 {
     class Program
     {
-            public static async Task Main(string[] args)
+        public static async Task Main(string[] args)
+        {
+
+            String adr = args.Length > 0 ? args[0] : "https://www.pja.edu.pl";
+            var clnt = new HttpClient();
+            var jeden = await clnt.GetAsync(adr);
+
+            if (!jeden.IsSuccessStatusCode)
             {
-
-                var url = args.Length > 0 ? args[0] : "https://www.pja.edu.pl";
-
-
-                using (var httpClient = new HttpClient())
-                {
-                    var response = await httpClient.GetAsync(url);
-
-                    if (response.IsSuccessStatusCode)
-                    {
-                        var htmlContent = await response.Content.ReadAsStringAsync();
-                        var regex = new Regex("[a-z]+[a-z0-9]*@[a-z0-9]+\\.[a-z]+", RegexOptions.IgnoreCase);
-
-
-                        var matches = regex.Matches(htmlContent);
-
-                        foreach (var match in matches)
-                        {
-                            Console.WriteLine(match.ToString());
-                        }
-
-                    }
-                }
-
-
+                Console.WriteLine("Błąd połączenia");
+                return;
             }
+
+            var WoT = await jeden.Content.ReadAsStringAsync();
+
+            clnt.Dispose();
+            jeden.Dispose();
+
+            var reg = new Regex("[a-z]+[a-z0-9]*@[a-z0-9]+\\.[a-z]+", RegexOptions.IgnoreCase);
+
+            var matches = reg.Matches(WoT);
+
+            foreach (var match in matches)
+            {
+                Console.WriteLine(match.ToString());
+            }
+
+
+        }
     }
 }
